@@ -4,7 +4,7 @@ $(document).ready(function(){
         
     var fov = 70,
         rotation = 0,
-        numBalls = 25,
+        numBalls = 40,
         balls = [],
         speed = 1,
         boxSize = 100,
@@ -34,14 +34,15 @@ $(document).ready(function(){
     var bounce = function(b1, b2){
         
         var x = new THREE.Vector3(b1.mesh.position.x - b2.mesh.position.x, b1.mesh.position.y - b2.mesh.position.y, b1.mesh.position.z - b2.mesh.position.z);
-        x.normalise();
+        x.normalize();
+
 
         var v1 = b1.speed.clone();
         var x1 = x.dot(v1);
 
         var v1x = x.multiplyScalar(x1);
         var v1y = v1.subSelf(v1x);
-        var m1 = b1.radius * b1.radius;
+        var m1 = Math.pow(b1.radius, 3);;
 
         x = x.multiplyScalar(-1);
 
@@ -50,17 +51,17 @@ $(document).ready(function(){
 
         var v2x = x.multiplyScalar(x2);
         var v2y = v2.subSelf(v2x);
-        var m2 = b2.radius * b2.radius;
+        var m2 = Math.pow(b2.radius, 3);
 
         var v1xt = v1x.multiplyScalar((m1 - m2)/(m1 + m2));
         var v2xt = v2x.multiplyScalar((2 * m2)/(m1 + m2));
-        b1.speed = v1xt.add(v2xt);
+        b1.speed = v1xt.addSelf(v2xt).clone();
         b1.speed.addSelf(v1y);
-        
-        v1xt = v1x.multiplyScalar((2 * m1)/(m1 + m2));
-        v2xt = v2x.multiplyScalar((m2 - m1)/(m1 + m2));
-        b1.speed = v1xt.add(v2xt);
-        b1.speed.addSelf(v2y);
+     
+        var v1xt2 = v1x.multiplyScalar((2 * m1)/(m1 + m2));
+        var v2xt2 = v2x.multiplyScalar((m2 - m1)/(m1 + m2));
+        b2.speed = v1xt2.addSelf(v2xt2).clone();
+        b2.speed.addSelf(v2y);
 
     };
 
