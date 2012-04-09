@@ -32,8 +32,36 @@ $(document).ready(function(){
     };
 
     var bounce = function(b1, b2){
-        b1.speed.multiplyScalar(-1);
-        b2.speed.multiplyScalar(-1);
+        
+        var x = new THREE.Vector3(b1.mesh.position.x - b2.mesh.position.x, b1.mesh.position.y - b2.mesh.position.y, b1.mesh.position.z - b2.mesh.position.z);
+        x.normalise();
+
+        var v1 = b1.speed.clone();
+        var x1 = x.dot(v1);
+
+        var v1x = x.multiplyScalar(x1);
+        var v1y = v1.subSelf(v1x);
+        var m1 = b1.radius * b1.radius;
+
+        x = x.multiplyScalar(-1);
+
+        var v2 = b2.speed.clone();
+        var x2 = x.dot(v2);
+
+        var v2x = x.multiplyScalar(x2);
+        var v2y = v2.subSelf(v2x);
+        var m2 = b2.radius * b2.radius;
+
+        var v1xt = v1x.multiplyScalar((m1 - m2)/(m1 + m2));
+        var v2xt = v2x.multiplyScalar((2 * m2)/(m1 + m2));
+        b1.speed = v1xt.add(v2xt);
+        b1.speed.addSelf(v1y);
+        
+        v1xt = v1x.multiplyScalar((2 * m1)/(m1 + m2));
+        v2xt = v2x.multiplyScalar((m2 - m1)/(m1 + m2));
+        b1.speed = v1xt.add(v2xt);
+        b1.speed.addSelf(v2y);
+
     };
 
     var absorb = function(b1, b2){
